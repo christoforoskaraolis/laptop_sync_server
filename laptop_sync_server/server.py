@@ -1,19 +1,18 @@
 """
-Rally Marshal Timer – Sync server.
+Rally Control Timer – Sync server.
 
-Use over the internet: deploy this to a cloud host so marshals (phone in the
-mountains) and HQ (laptop) can sync without being on the same network.
+Use over the internet: deploy to a cloud host so marshals (phone) and HQ (laptop)
+can sync over the internet.
 
   Local:  python server.py  →  http://localhost:8765
-  Cloud:  deploy to Railway/Render  →  https://your-app.up.railway.app
-
-Phone app and HQ laptop both use the same URL (the cloud one).
+  Cloud:  Railway/Render    →  https://your-app.up.railway.app
 """
 
 from flask import Flask, request, jsonify
 import os
 
 app = Flask(__name__, static_folder=None)
+
 
 @app.after_request
 def add_cors(response):
@@ -154,10 +153,5 @@ def health():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8765))
-    print(f"Rally Marshal sync server: http://0.0.0.0:{port}")
-    print("For internet sync (phone in mountains, laptop at HQ), deploy to cloud – see README.")
+    print(f"Rally Control sync server: http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)
-
-
-
-
