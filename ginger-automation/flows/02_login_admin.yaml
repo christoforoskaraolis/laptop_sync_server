@@ -1,0 +1,105 @@
+# Business Flow: Login as Admin
+# Website: https://ilrnafvgqa01/fv-web-app
+# Opens in Chrome, verifies login page, logs in with admin/admin4, verifies success.
+
+flow_id: FLOW-002
+flow_name: Login as Admin and Verify Success
+description: Open the FV web app in Chrome, verify login page is visible, log in with admin/admin4, and verify login completed.
+
+configuration:
+  base_url: "https://ilrnafvgqa01/fv-web-app"
+  browser: chrome
+  timeout_seconds: 15
+  credentials:
+    username: "admin"
+    password: "admin4"
+
+steps:
+  - step_number: 1
+    action: navigate
+    description: Open the website in Google Chrome
+    parameters:
+      url: "${base_url}"
+      browser: chrome
+    expected: Browser opens and navigates to the application URL
+
+  - step_number: 2
+    action: wait_for_page_load
+    description: Wait for the page to load
+    parameters:
+      timeout: 10
+    expected: Page is fully loaded
+
+  - step_number: 3
+    action: verify_page_open
+    description: Verify the page is open
+    parameters:
+      url_contains: "fv-web-app"
+    expected: Application page is open
+
+  - step_number: 4
+    action: verify_element_visible
+    description: Verify login page is visible (username or login form present)
+    parameters:
+      locator_type: xpath
+      # Common patterns - adjust if your app uses different ids/classes:
+      locator_value: "//input[@type='text' or @name='username' or @id='username' or contains(@placeholder,'user')] | //input[@type='email'] | //form[contains(@class,'login') or contains(@action,'login')]"
+      # Alternative simpler option - uncomment and adjust:
+      # locator_type: css
+      # locator_value: "input[type='text'], input[name='username'], #username, .login-form"
+    expected: Login page is visible (username field or login form found)
+
+  - step_number: 5
+    action: set_value
+    description: Enter username
+    parameters:
+      locator_type: xpath
+      locator_value: "//input[@type='text' or @name='username' or @id='username']"
+      value: "${credentials.username}"
+    expected: Username "admin" is entered
+
+  - step_number: 6
+    action: set_value
+    description: Enter password
+    parameters:
+      locator_type: xpath
+      locator_value: "//input[@type='password' or @name='password' or @id='password']"
+      value: "${credentials.password}"
+    expected: Password is entered (masked)
+
+  - step_number: 7
+    action: click
+    description: Click Login button
+    parameters:
+      locator_type: xpath
+      locator_value: "//button[contains(.,'Login') or contains(.,'Log in') or contains(.,'Sign in')] | //input[@type='submit' and (contains(@value,'Login') or contains(@value,'Sign in'))] | //a[contains(.,'Login')]"
+    expected: Login button is clicked
+
+  - step_number: 8
+    action: wait_for_page_load
+    description: Wait for post-login page to load
+    parameters:
+      timeout: 10
+    expected: Page navigates after login
+
+  - step_number: 9
+    action: verify_login_completed
+    description: Verify that login is completed
+    parameters:
+      # Adjust these to match your app (e.g. dashboard title, user menu, logout link):
+      success_indicators:
+        - "//h1[contains(.,'Welcome') or contains(.,'Dashboard') or contains(.,'Home')]"
+        - "//*[contains(@class,'user') or contains(@class,'dashboard') or contains(@class,'main')]"
+        - "//a[contains(.,'Logout') or contains(.,'Log out') or contains(.,'Sign out')]"
+      # Or verify URL changed (e.g. away from login):
+      url_no_longer_contains: "login"
+    expected: Login is completed (dashboard/welcome or logout visible; no login form)
+
+# Pass criteria: All steps complete without failure
+
+# --- Locator tips for your app ---
+# If steps 4–7 fail, inspect your login page and update locator_type/locator_value:
+# - Username: id, name, or placeholder of the username field
+# - Password: id, name, or placeholder of the password field  
+# - Login button: text ("Login"/"Sign in"), id, or class of the button
+# - Success: text or element that appears only after login (e.g. "Welcome, admin", "Dashboard", "Logout")

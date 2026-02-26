@@ -1,0 +1,58 @@
+{
+  "name": "FV Web Regression",
+  "application": "FraudView (FV) Web App",
+  "levels": [
+    {
+      "id": "smoke",
+      "name": "Smoke (run first)",
+      "tests": [
+        { "id": "S1", "name": "Application loads", "steps": "Open QA FV URL in Chrome.", "expected": "Page loads; no critical errors." },
+        { "id": "S2", "name": "Login page visible", "steps": "From S1, observe screen.", "expected": "Sign In screen with username/password and Sign In button." },
+        { "id": "S3", "name": "Admin login success", "steps": "Enter admin credentials, click Sign In.", "expected": "User is logged in (e.g. user menu / label visible)." }
+      ]
+    },
+    {
+      "id": "p0",
+      "name": "P0 – Critical path",
+      "tests": [
+        { "id": "P0-1", "name": "Admin login end-to-end", "steps": "Open QA URL → Verify Sign In → Enter admin credentials → Sign In → Verify success.", "expected": "Login completed; user menu shows username." },
+        { "id": "P0-2", "name": "Back to Home and Cases navigation", "steps": "After login: Back to Home → Cases → Public Cases → Open a case by ID → Back to Private Cases.", "expected": "Each screen loads; Private Cases title/page visible. (Requires data loaded in DB.)" },
+        { "id": "P0-3", "name": "Logout / session", "steps": "After login, use user menu to sign out (if available).", "expected": "Return to Sign In screen; cannot access protected pages without re-login." }
+      ]
+    },
+    {
+      "id": "p1",
+      "name": "P1 – High priority",
+      "tests": [
+        { "id": "P1-1", "name": "Invalid login", "steps": "Enter wrong username/password, click Sign In.", "expected": "Error message; no login; no crash." },
+        { "id": "P1-2", "name": "Empty credentials", "steps": "Leave username or password blank, click Sign In.", "expected": "Validation message or clear error." },
+        { "id": "P1-3", "name": "Home navigation", "steps": "From any inner screen, click Back to Home (or Home link).", "expected": "Home/default landing page loads." },
+        { "id": "P1-4", "name": "Cases menu – Public", "steps": "Login → Cases → Public Cases.", "expected": "Public Cases list loads; case IDs visible (needs data in DB)." },
+        { "id": "P1-5", "name": "Cases menu – Private", "steps": "From Public Cases, use Back to Private Cases.", "expected": "Private Cases page loads; title Private Cases visible." },
+        { "id": "P1-6", "name": "Open a case", "steps": "From Cases list, click a case ID.", "expected": "Case details (or expected view) opens." },
+        { "id": "P1-7", "name": "Page refresh after login", "steps": "After login, refresh the page (F5).", "expected": "Session preserved or clear re-login prompt." },
+        { "id": "P1-8", "name": "User menu opens and shows username", "steps": "After login, click the user menu (top/header).", "expected": "Menu opens; logged-in username visible." },
+        { "id": "P1-9", "name": "Case list – sort by column", "steps": "On Public or Private Cases list, click a sortable column header (e.g. Case ID, Date).", "expected": "List re-sorts; order changes as expected." },
+        { "id": "P1-10", "name": "Case detail – key fields visible", "steps": "Open any case from the list.", "expected": "Case ID, status, and other key fields are visible and readable." },
+        { "id": "P1-11", "name": "Private Cases menu item", "steps": "Login → Cases → click Private Cases (or equivalent).", "expected": "Private Cases list/page loads." },
+        { "id": "P1-12", "name": "Back from case detail to list", "steps": "Open a case, then click Back or breadcrumb to return to list.", "expected": "Returns to Cases list (Public or Private) without error." }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "P2 – When time allows",
+      "tests": [
+        { "id": "P2-1", "name": "Different browsers", "steps": "Run Smoke + P0 on Edge, Firefox (or your supported set).", "expected": "Same behaviour as Chrome." },
+        { "id": "P2-2", "name": "Responsive / layout", "steps": "Resize window; check login and main screens.", "expected": "No layout break; usable." },
+        { "id": "P2-3", "name": "Keyboard / accessibility", "steps": "Tab through login form; submit with Enter.", "expected": "Focus and submit work." },
+        { "id": "P2-4", "name": "Session timeout", "steps": "Leave app idle for timeout period.", "expected": "Redirect to login; no crash." },
+        { "id": "P2-5", "name": "Multiple roles", "steps": "If you have other roles (e.g. viewer), login and basic navigation.", "expected": "Role-appropriate access." },
+        { "id": "P2-6", "name": "Error handling", "steps": "Invalid URLs, network interruption (if feasible).", "expected": "Graceful error or message." },
+        { "id": "P2-7", "name": "Case list – filter or search", "steps": "On Cases list, use filter or search if available.", "expected": "List filters or search results update correctly." },
+        { "id": "P2-8", "name": "Dashboard / home sections", "steps": "After login, view Home/dashboard.", "expected": "Expected sections or widgets load; no broken placeholders." },
+        { "id": "P2-9", "name": "No console errors on login page", "steps": "Open login page; open browser DevTools (F12) → Console.", "expected": "No red errors in console on load." },
+        { "id": "P2-10", "name": "User menu links", "steps": "Open user menu; click Profile, Settings, or similar if present.", "expected": "Correct page or panel opens; no crash." }
+      ]
+    }
+  ]
+}

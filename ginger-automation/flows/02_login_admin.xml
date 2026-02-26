@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ginger Business Flow: Login as Admin and Verify Success
+  Scenario: Open FV URL -> Verify Sign In screen -> Enter credentials -> Click Sign In -> Verify login success
+  All UI actions use ByXPath (no POM dependency). XPaths from login page HTML:
+  - Sign In screen:  //legend[text()='Sign In']
+  - Username:       //input[@name='userInput_Input']
+  - Password:       //input[@name='passInput_Input']
+  - Sign In button: //button[@name='okbtn_Button']
+  - Success (post-login): //div[@data-id='btnUserMenu']//label
+-->
+<GingerRepositoryItem>
+  <Header ItemGuid="a1b2c3d4-41f4-4fc5-b0f3-5cf5472b34e6" ItemType="BusinessFlow" CreatedBy="chriskar" Created="202501270000" GingerVersion="25.2.0.0" Version="1" LastUpdateBy="chriskar" LastUpdate="202502030000" />
+  <BusinessFlow DevelopmentTime="00:02:00" Guid="a1b2c3d4-41f4-4fc5-b0f3-5cf5472b34e6" Name="Login as Admin and Verify Success" Source="Ginger" Status="Unknown">
+    <Activities>
+      <!-- Activity 1: Open FV Web and verify login screen -->
+      <Activity ActionRunOption="StopActionsRunOnFailure" Active="True" ActivitiesGroupID="Group" ActivityName="Open FV Web-Go to FV URL" AutomationStatus="Automated" Description="Go to FraudView URL" DevelopmentTime="00:00:52" ErrorHandlerMappingType="AllAvailableHandlers" Expected="Login screen is successfully loaded" ExternalID="3519" Guid="b2c3d4e5-3072-407a-a90d-dc02789ee5e0" ParentGuid="fbdc03f8-e59c-4b80-8510-3fd00c45e6f9" PercentAutomated="100%" TargetApplication="FV GUI" Type="Regular">
+        <Acts>
+          <ActBrowserElement Active="True" Description="Open FV URL" Guid="c3d4e5f6-6266-40fc-a4cb-68be1872d3fc" ParentGuid="9b3903da-49d5-4cde-ba2c-dab9e037fd6c" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="d4e5f6a7-0578-41ad-8d37-fe20c720adbe" Param="ImplicitWait" Value="60" />
+              <ActInputValue Guid="e5f6a7b8-cb39-4a8b-adff-93797c62693a" Param="Value" Value="{Var Name=FV_URL}" />
+              <ActInputValue Guid="f6a7b8c9-791d-446c-adce-bf4f0e464777" Param="ControlAction" Value="GotoURL" />
+              <ActInputValue Guid="a7b8c9d0-6c06-43d6-b6d6-43d736a62f3a" Param="GotoURLType" />
+              <ActInputValue Guid="b8c9d0e1-0c75-473f-a1d4-8fc3531e3d8c" Param="LocateBy" />
+              <ActInputValue Guid="c9d0e1f2-4169-410b-a4a8-9904004beb20" Param="LocateValue" />
+              <ActInputValue Guid="d0e1f2a3-959f-465d-9aee-ce00fe765ffd" Param="PomGUID" />
+              <ActInputValue Guid="e1f2a3b4-4823-8a1e-0ab2bad1ddfc" Param="URLSrc" Value="Static" />
+              <ActInputValue Guid="f2a3b4c5-82c2-43cc-9d4c-50a5a1720bbc" Param="eMonitorUrl" Value="AllUrl" />
+              <ActInputValue Guid="a3b4c5d6-b1c3-4d25-b022-aea37635d8a3" Param="eRequestTypes" Value="FetchOrXHR" />
+              <ActInputValue Guid="b4c5d6e7-444c-b54a-55a39b92840b" Param="sBlockedUrls" />
+              <ActInputValue Guid="c5d6e7f8-8492-40a6-8ad6-3a3881405193" Param="NetworkLog" />
+              <ActInputValue Guid="d6e7f8a9-e6ed-4a9e-9e25-1297c97f17d9" Param="NetworkUrl" />
+            </InputValues>
+          </ActBrowserElement>
+          <ActUIElement Active="True" Description="Verify the Sign In screen" EnableRetryMechanism="True" Guid="e7f8a9b0-8110-4b6a-9230-2daa578fa349" MaxNumberOfRetries="3" ParentGuid="ea1dfd53-d376-444e-bc97-d51212a64ffd" Platform="Web" RetryMechanismInterval="2" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="f8a9b0c1-015e-46c1-91ee-f035edb4a987" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="a9b0c1d2-5e57-4033-af24-e80e66e67682" Param="LocateValue" Value="//legend[text()='Sign In']" />
+              <ActInputValue Guid="b0c1d2e3-c54a-4340-acc3-c58f1216687b" Param="Value" />
+              <ActInputValue Guid="c1d2e3f4-0bc5-4f5e-8f73-d26063591fd0" Param="Xoffset" />
+              <ActInputValue Guid="d2e3f4a5-bd1d-4f6d-9122-0dc192533607" Param="Yoffset" />
+              <ActInputValue Guid="e3f4a5b6-fab4-499d-8243-37b220c4a876" Param="ElementAction" Value="IsVisible" />
+              <ActInputValue Guid="f4a5b6c7-f8cf-4d5b-8542-123b9e77d9d9" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="a5b6c7d8-42bf-45af-a043-907f40b24e3b" Param="ElementLocateValue" Value="//legend[text()='Sign In']" />
+              <ActInputValue Guid="b6c7d8e9-21fc-4a0f-8c27-2362790abd23" Param="ElementType" Value="Unknown" />
+              <ActInputValue Guid="c7d8e9f0-5df6-4ced-ae2b-de459f199152" Param="ValueToSelect" />
+              <ActInputValue Guid="d8e9f0a1-732a-4820-9b65-51b2dc4335c3" Param="TargetLocateBy" />
+              <ActInputValue Guid="e9f0a1b2-bec2-48e1-b586-29c112390683" Param="TargetElementType" />
+              <ActInputValue Guid="f0a1b2c3-54e6-4fe6-bd87-4a08366e2372" Param="HandleElementType" />
+              <ActInputValue Guid="a1b2c3d4-e2b8-4df9-822c-1c428a421492" Param="HandleActionType" />
+            </InputValues>
+            <ReturnValues>
+              <ActReturnValue Active="True" Expected="True" Guid="b2c3d4e5-26fd-49e5-8a1a-f3bc8c13aad2" Operator="Legacy" Param="Actual" StoreTo="None" />
+            </ReturnValues>
+          </ActUIElement>
+        </Acts>
+        <Variables>
+          <VariableSelectionList Description="URL of FV Web" Guid="c3d4e5f6-4876-4e2c-892d-9b67c47208cd" MappedOutputType="None" Name="FV_URL" ParentGuid="b2c3d4e5-3072-407a-a90d-dc02789ee5e0" ParentName="Login as Admin and Verify Success\Group\Open FV Web-Go to FV URL" ParentType="Activity" Value="https://ilrnafvgqa01/fv-web-app/">
+            <OptionalValuesList>
+              <OptionalValue Guid="d4e5f6a7-7cd0-4d18-8d78-604f207760ef" Value="https://ilrnafvgqa01/fv-web-app/" />
+            </OptionalValuesList>
+          </VariableSelectionList>
+        </Variables>
+      </Activity>
+      <!-- Activity 2: Log in with admin user -->
+      <Activity ActionRunOption="StopActionsRunOnFailure" Active="True" ActivitiesGroupID="Group" ActivityName="Log in with admin user" AutomationStatus="Automated" Description="1. Enter Username admin&#xD;&#xA;2. Enter Password admin4&#xD;&#xA;3. Press Sign In button&#xD;&#xA;4. Verify Successfully Login" DevelopmentTime="00:00:31" ErrorHandlerMappingType="AllAvailableHandlers" Expected="Login is completed" ExternalID="2449" Guid="63851f79-6388-43c1-8fac-a33ad33d064f" ParentGuid="280766d7-9012-4e6a-8833-3aaf0124ccf5" PercentAutomated="100%" TargetApplication="FV GUI" Type="Regular">
+        <Acts>
+          <ActSetVariableValue Active="True" Description="Set Variable Action" Guid="615a3d63-c6a6-4799-a53d-09bca7ceb4e4" Platform="NA" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="29e4e80f-e708-44f4-9f01-bc0a20d65293" Param="SetVariableValueOption" Value="ResetValue" />
+              <ActInputValue Guid="be25c99e-999c-488d-ba1e-71bcc810714a" Param="VariableName" Value="Username" />
+              <ActInputValue Guid="fa03314e-3d70-4903-9229-f05237a9435e" Param="Value" />
+            </InputValues>
+          </ActSetVariableValue>
+          <ActUIElement Active="True" Description="Clear username field" Guid="2b3a98db-5a34-463d-9b08-344237ac29e7" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="bb6e3b3a-4f46-4ff7-be21-572eef4a75c1" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="1dc330b0-4ce9-4c81-8fed-4110cd70af85" Param="LocateValue" Value="//input[@name='userInput_Input']" />
+              <ActInputValue Guid="bdcc04d7-95b1-4903-a89f-e185dee0590f" Param="Value" Value="" />
+              <ActInputValue Guid="b6f8eab3-742d-4006-8181-ba6c6520b07b" Param="Xoffset" />
+              <ActInputValue Guid="bc944b97-a887-4a08-8430-54250b5cea74" Param="Yoffset" />
+              <ActInputValue Guid="d6424a4d-0ebc-4491-b940-586efb90732e" Param="ElementAction" Value="SetText" />
+              <ActInputValue Guid="93d4e009-197e-4ca9-9c06-2db5453bc28b" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="43a7e7e1-dcf9-4d82-8103-0bef7ac0e607" Param="ElementLocateValue" Value="//input[@name='userInput_Input']" />
+              <ActInputValue Guid="1dc9d5e7-4d36-4900-9fb5-5a8c25965630" Param="ElementType" Value="TextBox" />
+              <ActInputValue Guid="801fc6b4-df04-42aa-9fa5-138c9777ee2a" Param="ValueToSelect" />
+              <ActInputValue Guid="fad633a6-6a6e-4324-866c-89eeadd33ca7" Param="TargetLocateBy" />
+              <ActInputValue Guid="1786e2c0-8b07-4146-9760-38f00a749390" Param="TargetElementType" />
+              <ActInputValue Guid="c9597654-4a67-43b8-bf52-63f832dd0943" Param="HandleElementType" />
+              <ActInputValue Guid="c8131605-09a3-4d40-a9ce-9de62347a47f" Param="HandleActionType" />
+            </InputValues>
+          </ActUIElement>
+          <ActUIElement Active="True" Description="Enter username" Guid="3004fde0-b8f4-4164-99ec-e2e18c17ac67" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="e299136d-1f65-4aa7-bb80-0c37f3ba3dc9" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="4ea57f5a-8e0b-4777-b765-0ab9b378260d" Param="LocateValue" Value="//input[@name='userInput_Input']" />
+              <ActInputValue Guid="bdcc04d7-95b1-4903-a89f-e185dee0590f" Param="Value" Value="{Var Name=Username}" />
+              <ActInputValue Guid="3ec658fd-0f9d-4197-8070-fd5e9818d2c8" Param="Xoffset" />
+              <ActInputValue Guid="8a08212e-e1a7-4077-9c73-e733deca7c3b" Param="Yoffset" />
+              <ActInputValue Guid="6935934e-a090-482e-b5fb-bcff27a0b3ef" Param="ElementAction" Value="SetText" />
+              <ActInputValue Guid="631fe72c-77e0-4782-9f6e-4f505b035171" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="8c46b886-fb5d-4f0e-b1c0-d49111279257" Param="ElementLocateValue" Value="//input[@name='userInput_Input']" />
+              <ActInputValue Guid="9314fa9a-c0d3-4a7f-a409-fab109ec3008" Param="ElementType" Value="TextBox" />
+              <ActInputValue Guid="c54a8d1d-f926-4064-9adc-d3ab02b1ffaf" Param="ValueToSelect" />
+              <ActInputValue Guid="b51c2afc-77db-4b5e-8db0-f86ae3279a2b" Param="TargetLocateBy" />
+              <ActInputValue Guid="2148b910-e548-4a3b-b190-8542beda2ffb" Param="TargetElementType" />
+              <ActInputValue Guid="3ce01364-2204-40f8-a686-3e2c844b217f" Param="HandleElementType" />
+              <ActInputValue Guid="01aa0891-c6ea-4146-99ae-06a1528e0b98" Param="HandleActionType" />
+            </InputValues>
+          </ActUIElement>
+          <ActUIElement Active="True" Description="Enter Password" Guid="914fed29-018e-4633-9c9f-325392f087a3" ParentGuid="2da4240d-23db-47f5-957e-ba1f28287a5c" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="af31b1a5-1af9-4dd0-afbb-5921d61e1e3a" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="9afeeda0-0a17-4a88-a20c-89f6ed30cc1c" Param="LocateValue" Value="//input[@name='passInput_Input']" />
+              <ActInputValue Guid="f77fa57e-6a6f-441f-86aa-26b78d701a57" Param="Value" Value="{Var Name=Password}" />
+              <ActInputValue Guid="995a0058-6f70-4fd2-8d99-701eb2cfb40a" Param="Xoffset" />
+              <ActInputValue Guid="f3a80517-64cd-44a9-861f-3f30b47a096c" Param="Yoffset" />
+              <ActInputValue Guid="a1636825-7393-4929-bfba-02d87e9905d0" Param="ElementAction" Value="SetText" />
+              <ActInputValue Guid="e6d632ea-7fd2-4543-a0f3-cb4e8a81a98c" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="385416b3-9fd2-4b02-99a4-68cfa298c659" Param="ElementLocateValue" Value="//input[@name='passInput_Input']" />
+              <ActInputValue Guid="70a7b0c9-406a-4768-9aa9-fa873ad98ff3" Param="ElementType" Value="TextBox" />
+              <ActInputValue Guid="867a7447-ecc0-44f4-93d2-c54fbe6b425c" Param="ValueToSelect" />
+              <ActInputValue Guid="9b2dd645-b60d-4065-9039-10db93c5b767" Param="TargetLocateBy" />
+              <ActInputValue Guid="198f2da7-a827-4bb9-8d9b-98a030a01a1f" Param="TargetElementType" />
+              <ActInputValue Guid="15a26972-b51c-467a-be15-f249714b135e" Param="HandleElementType" />
+              <ActInputValue Guid="5f272550-6a02-46d9-bb53-f86d744db1a8" Param="HandleActionType" />
+            </InputValues>
+          </ActUIElement>
+          <ActUIElement Active="True" Description="Press SignIn Button" Guid="f558d820-800e-4b91-bb95-db941b5a1317" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <InputValues>
+              <ActInputValue Guid="4388725a-42f9-452c-abeb-61937be63087" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="a8cd79b7-5a98-4f7b-a842-ac9bca14590a" Param="LocateValue" Value="//button[@name='okbtn_Button']" />
+              <ActInputValue Guid="a9b6168f-c2a2-4135-9624-bc0874716311" Param="Value" />
+              <ActInputValue Guid="c501913f-a538-4fc0-9a8b-d782c5beaebc" Param="Xoffset" />
+              <ActInputValue Guid="940e42e8-ed72-43aa-81fa-1a663afa16a3" Param="Yoffset" />
+              <ActInputValue Guid="5bffa12c-6216-4460-b6bd-783235133f4c" Param="ElementAction" Value="Click" />
+              <ActInputValue Guid="f63fd7e1-fad3-47a6-82c3-1d94762ea087" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="85e7e1d7-8346-47b3-be6f-dd0f39ff45b9" Param="ElementLocateValue" Value="//button[@name='okbtn_Button']" />
+              <ActInputValue Guid="be9c2813-ee49-46bb-a300-6b7b7a1518cc" Param="ElementType" Value="Button" />
+              <ActInputValue Guid="7b3b13ca-0b1b-4d22-a1ab-ea6d7a5852ae" Param="ValueToSelect" />
+              <ActInputValue Guid="03c18fb7-c359-472f-83a6-7d10a3f50f24" Param="TargetLocateBy" />
+              <ActInputValue Guid="d278ac5b-faf8-46a0-805b-2525f16763b5" Param="TargetElementType" />
+              <ActInputValue Guid="49dbdcd3-e0f9-46e6-be56-c3d5e6eed36b" Param="XCoordinate" />
+              <ActInputValue Guid="b8939578-17d5-442a-9e79-ac2034418cea" Param="YCoordinate" />
+              <ActInputValue Guid="4c522a4c-5f72-4e55-9dde-ea105e48031b" Param="ControlAction" />
+              <ActInputValue Guid="472e4574-a782-48ae-a5ea-f53f832aec6d" Param="HandleElementType" />
+              <ActInputValue Guid="9b462165-5dd7-4b1a-81e0-6825325c0204" Param="HandleActionType" />
+            </InputValues>
+          </ActUIElement>
+          <ActUIElement Active="True" Description="Verify that user is successfully login" Guid="9931b0f6-8575-451b-b27d-7a13e6cef543" Platform="Web" RetryMechanismInterval="5" StatusConverter="None" WaitVE="0" WindowsToCapture="OnlyActiveWindow">
+            <FlowControls>
+              <FlowControl Active="True" BusinessFlowControlAction="GoToBusinessFlow" FlowControlAction="StopBusinessFlow" Guid="7b5ae9b3-79c4-41b4-ba5b-64e3ee259bd4" Operator="ActionFailed" Status="Action_Not_Executed" />
+            </FlowControls>
+            <InputValues>
+              <ActInputValue Guid="144a25c0-66c1-4ab2-9a18-d9db85178f94" Param="LocateBy" Value="ByXPath" />
+              <ActInputValue Guid="4eaabf86-86d0-444f-8d0a-0d4563e563e7" Param="LocateValue" Value="//div[@data-id='btnUserMenu']//label" />
+              <ActInputValue Guid="f6cbed26-28c0-4942-a32d-23192dd7d59a" Param="Value" />
+              <ActInputValue Guid="b8afad03-173d-49cb-b44b-928054b8ac14" Param="Xoffset" />
+              <ActInputValue Guid="ad7a333f-6324-401e-a627-33de1d0ef41d" Param="Yoffset" />
+              <ActInputValue Guid="e035f74c-1f12-487d-81ba-b9e66d74b9fb" Param="ElementAction" Value="GetText" />
+              <ActInputValue Guid="312e3fe5-b603-4c1f-8019-d63344ab0e95" Param="ElementLocateBy" Value="ByXPath" />
+              <ActInputValue Guid="ebab8c30-212f-4680-8906-84182718d227" Param="ElementLocateValue" Value="//div[@data-id='btnUserMenu']//label" />
+              <ActInputValue Guid="0c667a09-946d-4830-accd-41675a56a6a2" Param="ElementType" Value="Unknown" />
+              <ActInputValue Guid="d60f2e62-90e4-47fa-9c72-24616ae244a0" Param="ValueToSelect" />
+              <ActInputValue Guid="19ab1a53-c3b5-46c9-acdd-95a9d824d3ff" Param="TargetLocateBy" />
+              <ActInputValue Guid="875f43d0-76a1-48ad-b8d6-9b96840d398d" Param="TargetElementType" />
+              <ActInputValue Guid="5eb84cac-e461-4fdc-9100-e0e6df253499" Param="XCoordinate" />
+              <ActInputValue Guid="d3371946-d60d-4672-b34a-32b6ea35fd5f" Param="YCoordinate" />
+              <ActInputValue Guid="298554c2-bf09-47b0-b471-e556dac67906" Param="ControlAction" />
+              <ActInputValue Guid="33293b0b-398d-40e8-820c-aa582e8840b9" Param="HandleElementType" />
+              <ActInputValue Guid="577d0f31-8c99-42df-af03-4a37a1122571" Param="HandleActionType" />
+            </InputValues>
+            <ReturnValues>
+              <ActReturnValue Active="True" Expected="{Var Name=Username} ▼" Guid="0b4ce4cc-b2ce-4835-bdff-d0480a83357f" Operator="Equals" Param="Actual" StoreTo="None" />
+            </ReturnValues>
+          </ActUIElement>
+        </Acts>
+        <Variables>
+          <VariableString Description="admin user" Guid="14c86b78-e05a-4ab8-9413-b8204bec2dcf" InitialStringValue="admin" MappedOutputType="None" Name="Username" ParentGuid="63851f79-6388-43c1-8fac-a33ad33d064f" ParentName="Login as Admin and Verify Success\Group\Log in with admin user" ParentType="Activity" />
+          <VariableString Description="admin password" Guid="24c86b78-e05a-4ab8-9413-b8204bec2dcf" InitialStringValue="admin4" MappedOutputType="None" Name="Password" ParentGuid="63851f79-6388-43c1-8fac-a33ad33d064f" ParentName="Login as Admin and Verify Success\Group\Log in with admin user" ParentType="Activity" />
+        </Variables>
+      </Activity>
+    </Activities>
+    <ActivitiesGroups>
+      <ActivitiesGroup Guid="fc7857f3-f842-4f08-abeb-3c4ea1811c68" Name="Group">
+        <ActivitiesIdentifiers>
+          <ActivityIdentifiers ActivityAutomationStatus="Automated" ActivityDescription="Go to FraudView URL" ActivityExternalID="3519" ActivityGuid="b2c3d4e5-3072-407a-a90d-dc02789ee5e0" ActivityName="Open FV Web-Go to FV URL" ActivityParentGuid="fbdc03f8-e59c-4b80-8510-3fd00c45e6f9" Guid="a2eef6ed-139d-4b46-a73b-1e2da165b86c" />
+          <ActivityIdentifiers ActivityAutomationStatus="Automated" ActivityDescription="1. Enter Username admin&#xD;&#xA;2. Enter Password admin4&#xD;&#xA;3. Press Sign In button&#xD;&#xA;4. Verify Successfully Login" ActivityExternalID="2449" ActivityGuid="63851f79-6388-43c1-8fac-a33ad33d064f" ActivityName="Log in with admin user" ActivityParentGuid="280766d7-9012-4e6a-8833-3aaf0124ccf5" Guid="fa2437ba-68b3-424f-bb6a-ad29e465669b" />
+        </ActivitiesIdentifiers>
+      </ActivitiesGroup>
+    </ActivitiesGroups>
+    <TargetApplications>
+      <TargetApplication AppName="Web" Guid="445e95bc-6f99-4505-ad70-5d18bd58bf58" LastExecutingAgentName="ChromeAgent_01" />
+      <TargetApplication AppName="FV GUI" Guid="7da0bc3e-756a-4930-92c0-3592c3b27bb3" />
+    </TargetApplications>
+  </BusinessFlow>
+</GingerRepositoryItem>

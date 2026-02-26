@@ -1,0 +1,50 @@
+# Simple Business Flow: Verify Homepage Loads
+# Use this as a template - update base_url to your web application URL
+
+flow_id: FLOW-001
+flow_name: Verify Homepage Loads Successfully
+description: Opens the web application and verifies the main page loads with expected content.
+
+configuration:
+  base_url: "https://example.com"   # CHANGE THIS to your web app URL (e.g. https://myapp.com)
+  browser: chrome
+  timeout_seconds: 10
+
+steps:
+  - step_number: 1
+    action: navigate
+    description: Open the application homepage
+    parameters:
+      url: "${base_url}"
+    expected: Page loads without error
+
+  - step_number: 2
+    action: wait_for_page_load
+    description: Wait for page to be ready
+    parameters:
+      timeout: 5
+    expected: Page is fully loaded
+
+  - step_number: 3
+    action: verify_element_visible
+    description: Verify main content area is visible
+    parameters:
+      locator_type: css   # or id, xpath, etc.
+      locator_value: "body"   # or "#main", ".content", etc.
+    expected: Main content is visible
+
+  - step_number: 4
+    action: verify_page_title
+    description: Verify page has a title
+    parameters:
+      contains: ""   # optional: e.g. "Welcome" or leave empty to just check title exists
+    expected: Page title is present
+
+  - step_number: 5
+    action: take_screenshot
+    description: Capture screenshot for evidence
+    parameters:
+      name: "homepage_loaded"
+    expected: Screenshot saved
+
+# Pass criteria: All steps complete without failure

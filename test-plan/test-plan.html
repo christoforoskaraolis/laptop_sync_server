@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FV Web – Regression Test Plan</title>
+  <style>
+    :root { --pass: #0a0; --fail: #c00; --skip: #666; --bg: #f5f5f5; --card: #fff; --border: #ddd; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 1rem; background: var(--bg); color: #222; }
+    h1 { margin: 0 0 0.5rem; font-size: 1.35rem; }
+    .meta { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; padding: 1rem; background: var(--card); border-radius: 8px; border: 1px solid var(--border); }
+    .meta label { display: block; font-size: 0.75rem; color: #555; margin-bottom: 0.25rem; }
+    .meta input { width: 100%; padding: 0.4rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
+    .level { margin-bottom: 1.5rem; background: var(--card); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+    .level h2 { margin: 0; padding: 0.6rem 1rem; font-size: 1rem; background: #e8e8e8; border-bottom: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { font-size: 0.75rem; color: #555; font-weight: 600; }
+    .col-id { width: 72px; }
+    .col-result { width: 140px; }
+    .steps, .expected { font-size: 0.9rem; color: #444; }
+    .result-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .result-group label { display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; font-size: 0.85rem; }
+    .result-group input { margin: 0; }
+    .summary { padding: 1rem; background: var(--card); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .summary span { font-weight: 600; }
+    .summary .p { color: var(--pass); }
+    .summary .f { color: var(--fail); }
+    .summary .s { color: var(--skip); }
+    .actions { margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .btn { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); background: var(--card); cursor: pointer; font-size: 0.9rem; }
+    .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .sub { font-size: 0.8rem; color: #666; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>FV Web – Regression Test Plan</h1>
+  <p class="sub">Run manually on QA. Load test data in DB first. No external tools – open this file in your browser.</p>
+
+  <div class="meta">
+    <div><label>Build / version</label><input type="text" id="build" placeholder="e.g. 1.2.3"></div>
+    <div><label>QA URL</label><input type="text" id="qaUrl" placeholder="https://..."></div>
+    <div><label>Date</label><input type="text" id="runDate" placeholder="YYYY-MM-DD"></div>
+    <div><label>Tester</label><input type="text" id="tester" placeholder="Your name"></div>
+  </div>
+
+  <div class="summary" id="summary">
+    <span class="p">Passed: <strong id="cntPass">0</strong></span>
+    <span class="f">Failed: <strong id="cntFail">0</strong></span>
+    <span class="s">Skipped: <strong id="cntSkip">0</strong></span>
+    <span>Not set: <strong id="cntNone">0</strong></span>
+  </div>
+
+  <div id="plan"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="saveReport">Save report (HTML)</button>
+    <button class="btn" id="saveJson">Save report (JSON)</button>
+  </div>
+
+  <script>
+    (function () {
+      const PLAN = {"name":"FV Web Regression","application":"FraudView (FV) Web App","levels":[{"id":"smoke","name":"Smoke (run first)","tests":[{"id":"S1","name":"Application loads","steps":"Open QA FV URL in Chrome.","expected":"Page loads; no critical errors."},{"id":"S2","name":"Login page visible","steps":"From S1, observe screen.","expected":"Sign In screen with username/password and Sign In button."},{"id":"S3","name":"Admin login success","steps":"Enter admin credentials, click Sign In.","expected":"User is logged in (e.g. user menu / label visible)."}]},{"id":"p0","name":"P0 – Critical path","tests":[{"id":"P0-1","name":"Admin login end-to-end","steps":"Open QA URL → Verify Sign In → Enter admin credentials → Sign In → Verify success.","expected":"Login completed; user menu shows username."},{"id":"P0-2","name":"Back to Home and Cases navigation","steps":"After login: Back to Home → Cases → Public Cases → Open a case by ID → Back to Private Cases.","expected":"Each screen loads; Private Cases title/page visible. (Requires data loaded in DB.)"},{"id":"P0-3","name":"Logout / session","steps":"After login, use user menu to sign out (if available).","expected":"Return to Sign In screen; cannot access protected pages without re-login."}]},{"id":"p1","name":"P1 – High priority","tests":[{"id":"P1-1","name":"Invalid login","steps":"Enter wrong username/password, click Sign In.","expected":"Error message; no login; no crash."},{"id":"P1-2","name":"Empty credentials","steps":"Leave username or password blank, click Sign In.","expected":"Validation message or clear error."},{"id":"P1-3","name":"Home navigation","steps":"From any inner screen, click Back to Home (or Home link).","expected":"Home/default landing page loads."},{"id":"P1-4","name":"Cases menu – Public","steps":"Login → Cases → Public Cases.","expected":"Public Cases list loads; case IDs visible (needs data in DB)."},{"id":"P1-5","name":"Cases menu – Private","steps":"From Public Cases, use Back to Private Cases.","expected":"Private Cases page loads; title Private Cases visible."},{"id":"P1-6","name":"Open a case","steps":"From Cases list, click a case ID.","expected":"Case details (or expected view) opens."},{"id":"P1-7","name":"Page refresh after login","steps":"After login, refresh the page (F5).","expected":"Session preserved or clear re-login prompt."},{"id":"P1-8","name":"User menu opens and shows username","steps":"After login, click the user menu (top/header).","expected":"Menu opens; logged-in username visible."},{"id":"P1-9","name":"Case list – sort by column","steps":"On Public or Private Cases list, click a sortable column header (e.g. Case ID, Date).","expected":"List re-sorts; order changes as expected."},{"id":"P1-10","name":"Case detail – key fields visible","steps":"Open any case from the list.","expected":"Case ID, status, and other key fields are visible and readable."},{"id":"P1-11","name":"Private Cases menu item","steps":"Login → Cases → click Private Cases (or equivalent).","expected":"Private Cases list/page loads."},{"id":"P1-12","name":"Back from case detail to list","steps":"Open a case, then click Back or breadcrumb to return to list.","expected":"Returns to Cases list (Public or Private) without error."}]},{"id":"p2","name":"P2 – When time allows","tests":[{"id":"P2-1","name":"Different browsers","steps":"Run Smoke + P0 on Edge, Firefox (or your supported set).","expected":"Same behaviour as Chrome."},{"id":"P2-2","name":"Responsive / layout","steps":"Resize window; check login and main screens.","expected":"No layout break; usable."},{"id":"P2-3","name":"Keyboard / accessibility","steps":"Tab through login form; submit with Enter.","expected":"Focus and submit work."},{"id":"P2-4","name":"Session timeout","steps":"Leave app idle for timeout period.","expected":"Redirect to login; no crash."},{"id":"P2-5","name":"Multiple roles","steps":"If you have other roles (e.g. viewer), login and basic navigation.","expected":"Role-appropriate access."},{"id":"P2-6","name":"Error handling","steps":"Invalid URLs, network interruption (if feasible).","expected":"Graceful error or message."},{"id":"P2-7","name":"Case list – filter or search","steps":"On Cases list, use filter or search if available.","expected":"List filters or search results update correctly."},{"id":"P2-8","name":"Dashboard / home sections","steps":"After login, view Home/dashboard.","expected":"Expected sections or widgets load; no broken placeholders."},{"id":"P2-9","name":"No console errors on login page","steps":"Open login page; open browser DevTools (F12) → Console.","expected":"No red errors in console on load."},{"id":"P2-10","name":"User menu links","steps":"Open user menu; click Profile, Settings, or similar if present.","expected":"Correct page or panel opens; no crash."}]}]};
+
+      const results = {}; // id -> 'pass' | 'fail' | 'skip'
+
+      function setResult(id, value) {
+        results[id] = value;
+        updateSummary();
+      }
+
+      function updateSummary() {
+        let pass = 0, fail = 0, skip = 0, none = 0;
+        PLAN.levels.forEach(lv => lv.tests.forEach(t => {
+          const r = results[t.id];
+          if (r === 'pass') pass++; else if (r === 'fail') fail++; else if (r === 'skip') skip++; else none++;
+        }));
+        document.getElementById('cntPass').textContent = pass;
+        document.getElementById('cntFail').textContent = fail;
+        document.getElementById('cntSkip').textContent = skip;
+        document.getElementById('cntNone').textContent = none;
+      }
+
+      function render() {
+        const today = new Date().toISOString().slice(0, 10);
+        const dateEl = document.getElementById('runDate');
+        if (!dateEl.value) dateEl.value = today;
+
+        let html = '';
+        PLAN.levels.forEach(level => {
+          html += '<div class="level"><h2>' + level.name + '</h2><table><thead><tr><th class="col-id">ID</th><th>Test</th><th>Steps</th><th>Expected</th><th class="col-result">Result</th></tr></thead><tbody>';
+          level.tests.forEach(t => {
+            const r = results[t.id] || '';
+            html += '<tr><td class="col-id">' + t.id + '</td><td><strong>' + t.name + '</strong></td><td class="steps">' + t.steps + '</td><td class="expected">' + t.expected + '</td><td class="col-result"><div class="result-group">';
+            ['pass', 'fail', 'skip'].forEach(v => {
+              html += '<label><input type="radio" name="r_' + t.id + '" value="' + v + '"' + (r === v ? ' checked' : '') + '> ' + (v === 'pass' ? 'Pass' : v === 'fail' ? 'Fail' : 'Skip') + '</label>';
+            });
+            html += '</div></td></tr>';
+          });
+          html += '</tbody></table></div>';
+        });
+        document.getElementById('plan').innerHTML = html;
+
+        document.querySelectorAll('.result-group input[type=radio]').forEach(radio => {
+          radio.addEventListener('change', function () {
+            const id = this.name.replace('r_', '');
+            setResult(id, this.value);
+          });
+        });
+        updateSummary();
+      }
+
+      document.getElementById('saveReport').addEventListener('click', function () {
+        const build = document.getElementById('build').value || '—';
+        const qaUrl = document.getElementById('qaUrl').value || '—';
+        const runDate = document.getElementById('runDate').value || '—';
+        const tester = document.getElementById('tester').value || '—';
+        let body = '<h1>FV Web – Test Run Report</h1><p><strong>Build:</strong> ' + build + ' &nbsp; <strong>QA URL:</strong> ' + qaUrl + ' &nbsp; <strong>Date:</strong> ' + runDate + ' &nbsp; <strong>Tester:</strong> ' + tester + '</p><table border="1" cellpadding="8" cellspacing="0"><thead><tr><th>ID</th><th>Test</th><th>Steps</th><th>Expected</th><th>Result</th></tr></thead><tbody>';
+        PLAN.levels.forEach(lv => {
+          lv.tests.forEach(t => {
+            const r = results[t.id] || '—';
+            body += '<tr><td>' + t.id + '</td><td>' + t.name + '</td><td>' + t.steps + '</td><td>' + t.expected + '</td><td>' + (r === 'pass' ? 'Pass' : r === 'fail' ? 'Fail' : r === 'skip' ? 'Skip' : '—') + '</td></tr>';
+          });
+        });
+        body += '</tbody></table>';
+        const blob = new Blob(['<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FV Test Report</title></head><body>' + body + '</body></html>'], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fv-test-report-' + (document.getElementById('runDate').value || new Date().toISOString().slice(0,10)) + '.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      document.getElementById('saveJson').addEventListener('click', function () {
+        const payload = {
+          build: document.getElementById('build').value || '',
+          qaUrl: document.getElementById('qaUrl').value || '',
+          runDate: document.getElementById('runDate').value || '',
+          tester: document.getElementById('tester').value || '',
+          results: results,
+          exportedAt: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'fv-test-report-' + (document.getElementById('runDate').value || new Date().toISOString().slice(0,10)) + '.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
