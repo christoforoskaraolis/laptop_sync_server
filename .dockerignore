@@ -1,0 +1,3 @@
+# Only include the website folder in Docker build context
+*
+!laptop_sync_server/
