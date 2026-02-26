@@ -1,6 +1,0 @@
-# Tell Nixpacks/Railway this is a Python app
-[phases.setup]
-nixPkgs = ["python311"]
-
-[start]
-cmd = "gunicorn --bind 0.0.0.0:$PORT server:app"

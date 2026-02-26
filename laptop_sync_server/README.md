@@ -1,37 +1,29 @@
-# Rally Controls Live Times – Sync server
+# Rally Controls Live Times
 
-This server receives times from the Rally Control Timer app and shows them in a browser. Deploy to the cloud so marshals (phone) and HQ (laptop) can sync over the internet.
+Web server for the Rally Control Timer app. Shows live times from the app and lets you reset them.
 
----
+## Deploy on Railway
 
-## Deploy to Railway
+1. In Railway: **New Project** → **Deploy from GitHub** → choose repo `christoforoskaraolis/laptop_sync_server`.
+2. In the new service go to **Settings** → **Source**.
+3. Set **Root Directory** to: `laptop_sync_server`
+4. Deploy. Railway will use the Dockerfile in this folder.
 
-1. In Railway: **New Project** → **Deploy from GitHub** → select this repo.
-2. In the service **Settings**, set **Root Directory** to `laptop_sync_server`.
-3. Railway will use the Dockerfile to build and run. You get a URL like `https://your-app.up.railway.app`.
-
-## Deploy to Render
-
-1. **New** → **Web Service** → connect repo, set **Root Directory** to `laptop_sync_server`.
-2. Build: `pip install -r requirements.txt`
-3. Start: `gunicorn -b 0.0.0.0:$PORT server:app`
-
----
+Your site will be at a URL like `https://xxx.up.railway.app`. Put that URL in the app (Settings → Sync server URL).
 
 ## Run locally
 
 ```bash
+cd laptop_sync_server
 pip install -r requirements.txt
 python server.py
 ```
 
-Then open http://localhost:8765. On the phone app, set sync URL to `http://YOUR_IP:8765`.
+Open http://localhost:8765
 
----
+## What it does
 
-## Usage
-
-- **App**: In Settings, set the sync server URL to your deployed URL (e.g. `https://your-app.up.railway.app`). When you record a time, it is sent to this server.
-- **Browser**: Open the same URL to see all entries, grouped by TC, auto-refreshing every 3 seconds. Use **Reset all times** to clear the server list (with confirmation).
-
-Entries are stored in memory only; restarting or redeploying clears them.
+- **GET /** – Web page: “Rally Controls Live Times”, list of entries by TC, Reset button (with “Are you sure you want to delete all times?”).
+- **GET /entries** – JSON list of entries (for the page).
+- **POST /entry** – App sends a new time/car/TC here.
+- **POST /reset-entries** – Clears all entries (used by the Reset button).

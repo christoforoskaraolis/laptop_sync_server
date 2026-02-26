@@ -1,3 +1,0 @@
-# Force Railway to use Dockerfile instead of Railpack
-[build]
-builder = "DOCKERFILE"
