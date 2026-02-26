@@ -6,14 +6,14 @@ WORKDIR /app
 
 # So logs show immediately in Railway
 ENV PYTHONUNBUFFERED=1
-ENV PORT=5000
+ENV PORT=8080
 
 COPY laptop_sync_server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY laptop_sync_server/server.py .
 
-EXPOSE 5000
+EXPOSE 8080
 
-# Railway sets PORT at runtime; use shell so it's expanded
-CMD sh -c 'exec gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 1 --timeout 120 server:app'
+# Railway sets PORT at runtime (e.g. 8080); use shell so it's expanded
+CMD sh -c 'exec gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --timeout 120 server:app'
