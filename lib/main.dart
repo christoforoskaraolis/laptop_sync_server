@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ntp_dart/ntp_dart.dart';
 import 'sync_service.dart';
 
 void main() {
@@ -14,14 +15,14 @@ void main() {
   // Prevent widget errors from crashing the app on device (e.g. Realme/ColorOS)
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return Material(
-      color: const Color(0xFF0D1B2A),
+      color: _rallyNavy,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Text(
             'Something went wrong.\nRestart the app.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: const Color(0xFFFFB74D), fontSize: 16),
+            style: TextStyle(color: _rallyOrange, fontSize: 16),
           ),
         ),
       ),
@@ -42,12 +43,14 @@ void main() {
   });
 }
 
-// Rally theme colours (aligned with app logo: navy + orange)
-const _rallyNavy = Color(0xFF0D1B2A);
-const _rallyNavySurface = Color(0xFF1B263B);
+// Rally theme colours (bright light theme: light gray + orange)
+const _rallyNavy = Color(0xFFF5F6FA);       // main background
+const _rallyNavySurface = Color(0xFFE8EAEE); // cards, app bar
 const _rallyOrange = Color(0xFFE65100);
-const _rallyOrangeBright = Color(0xFFFFB74D);
+const _rallyOrangeBright = Color(0xFFE65100); // same as primary for contrast on light
 const _rallyRed = Color(0xFFC62828);
+const _rallyTextDark = Color(0xFF1A1A1A);
+const _rallyTextMuted = Color(0xFF5C5C5C);
 
 class RallyMarshalApp extends StatelessWidget {
   const RallyMarshalApp({super.key});
@@ -59,21 +62,21 @@ class RallyMarshalApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.dark(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
           primary: _rallyOrange,
           secondary: _rallyOrangeBright,
           surface: _rallyNavySurface,
           error: _rallyRed,
           onPrimary: Colors.white,
-          onSecondary: Colors.black87,
-          onSurface: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: _rallyTextDark,
           onError: Colors.white,
         ),
         scaffoldBackgroundColor: _rallyNavy,
         appBarTheme: const AppBarTheme(
           backgroundColor: _rallyNavySurface,
-          foregroundColor: _rallyOrangeBright,
+          foregroundColor: _rallyOrange,
           elevation: 0,
           centerTitle: true,
         ),
@@ -107,6 +110,10 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
   static const _startTimeKey = 'rally_marshal_start_time';
   static const _rallyNameKey = 'rally_marshal_rally_name';
   static const _tcKey = 'rally_marshal_tc';
+  static const _showStartButtonKey = 'rally_marshal_show_start_button';
+
+  /// True when user has manually set start time in Settings; false after "Sync time from GPS/NTP" (timer starts and button hides).
+  bool _showStartFromThisTimeButton = true;
 
   Future<void> _loadStartTime() async {
     final prefs = await SharedPreferences.getInstance();
@@ -279,9 +286,22 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
     super.initState();
     _loadEntries();
     _loadStartTime();
+    _loadShowStartButton();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showRallyTcDialogIfNeeded();
     });
+  }
+
+  Future<void> _loadShowStartButton() async {
+    final prefs = await SharedPreferences.getInstance();
+    final v = prefs.getBool(_showStartButtonKey);
+    if (v != null && mounted) setState(() => _showStartFromThisTimeButton = v);
+  }
+
+  Future<void> _saveShowStartButton(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showStartButtonKey, value);
+    if (mounted) setState(() => _showStartFromThisTimeButton = value);
   }
 
   @override
@@ -314,8 +334,10 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
     final tcController = TextEditingController(text: tc);
     int dialogH = _hours;
     int dialogM = _minutes;
+    int dialogS = _seconds;
+    int dialogC = _hundredths;
     final isRunning = _isRunning;
-    final result = await showDialog<bool>(
+    final result = await showDialog<Object?>(
       context: context,
       builder: (ctx) {
         final mq = MediaQuery.of(ctx);
@@ -440,7 +462,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Time the timer will start from when you tap Start.',
+                                'Time the timer will start from when you tap Start. Sync from GPS/NTP to match Alge MT1 devices.',
                                 style: TextStyle(color: Colors.white70, fontSize: (screenW * 0.033).clamp(12.0, 14.0)),
                               ),
                               const SizedBox(height: 12),
@@ -465,7 +487,62 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                                     onChanged: (v) => setDialogState(() => dialogM = v),
                                     compact: screenW < 360,
                                   ),
+                                  _TimeInput(
+                                    key: const ValueKey('ss'),
+                                    label: 'ss',
+                                    value: dialogS,
+                                    max: 59,
+                                    onChanged: (v) => setDialogState(() => dialogS = v),
+                                    compact: screenW < 360,
+                                  ),
+                                  _TimeInput(
+                                    key: const ValueKey('cc'),
+                                    label: 'cc',
+                                    value: dialogC,
+                                    max: 99,
+                                    onChanged: (v) => setDialogState(() => dialogC = v),
+                                    compact: screenW < 360,
+                                  ),
                                 ],
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () async {
+                                    try {
+                                      final ntpNow = await NtpClient().now();
+                                      final local = ntpNow.toLocal();
+                                      setDialogState(() {
+                                        dialogH = local.hour;
+                                        dialogM = local.minute;
+                                        dialogS = local.second;
+                                        dialogC = (local.millisecond / 10).round().clamp(0, 99);
+                                      });
+                                      if (ctx.mounted) {
+                                        Navigator.of(ctx).pop({
+                                          'syncedAndStart': true,
+                                          'h': dialogH,
+                                          'm': dialogM,
+                                          's': dialogS,
+                                          'c': dialogC,
+                                        });
+                                        ScaffoldMessenger.of(ctx).showSnackBar(
+                                          const SnackBar(content: Text('Time synced from GPS/NTP and started'), duration: Duration(seconds: 2)),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (ctx.mounted) {
+                                        ScaffoldMessenger.of(ctx).showSnackBar(
+                                          SnackBar(content: Text('Sync failed: $e'), backgroundColor: Colors.red.shade800),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  icon: const Icon(Icons.gps_fixed, size: 20),
+                                  label: const Text('Sync time from GPS/NTP'),
+                                  style: OutlinedButton.styleFrom(foregroundColor: Colors.orange.shade200),
+                                ),
                               ),
                             ],
                           ),
@@ -586,17 +663,28 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
         );
       },
     );
-    if (result == true) {
+    if (result is Map && result['syncedAndStart'] == true) {
+      setState(() {
+        _hours = (result['h'] as num?)?.toInt() ?? _hours;
+        _minutes = (result['m'] as num?)?.toInt() ?? _minutes;
+        _seconds = (result['s'] as num?)?.toInt() ?? _seconds;
+        _hundredths = (result['c'] as num?)?.toInt() ?? _hundredths;
+      });
+      await _saveStartTime();
+      _startFromSetTime();
+      await _saveShowStartButton(false);
+    } else if (result == true) {
       await SyncService.setServerUrl(urlController.text);
       await prefs.setString(_rallyNameKey, rallyNameController.text.trim());
       await prefs.setString(_tcKey, tcController.text.trim());
       setState(() {
         _hours = dialogH;
         _minutes = dialogM;
-        _seconds = 0;
-        _hundredths = 0;
+        _seconds = dialogS;
+        _hundredths = dialogC;
       });
       await _saveStartTime();
+      await _saveShowStartButton(true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Settings saved')),
@@ -667,6 +755,8 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
   }
 
   Future<void> _onRecordCarPressed() async {
+    // Capture time the moment the red button is pressed (before car number dialog)
+    final time = _displayTime();
     final carNumber = await showDialog<int>(
       context: context,
       builder: (ctx) => _CarNumberDialog(),
@@ -680,7 +770,6 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
       }
       return;
     }
-    final time = _displayTime();
     setState(() {
       _entries.insert(0, MarshalEntry(time: time, carNumber: carNumber));
     });
@@ -800,11 +889,11 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: padding * 1.2, vertical: spacing * 0.6),
             decoration: BoxDecoration(
-              color: _rallyNavySurface.withOpacity(0.8),
+              color: _rallyNavySurface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _rallyOrange.withOpacity(0.5), width: 2),
+              border: Border.all(color: _rallyOrange.withOpacity(0.6), width: 2),
               boxShadow: [
-                BoxShadow(color: _rallyOrange.withOpacity(0.15), blurRadius: 12, spreadRadius: 0),
+                BoxShadow(color: _rallyOrange.withOpacity(0.2), blurRadius: 12, spreadRadius: 0),
               ],
             ),
             child: FittedBox(
@@ -816,7 +905,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                   fontSize: 200,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 4,
-                  color: _rallyOrangeBright,
+                  color: Colors.black,
                   fontFeatures: [FontFeature.tabularFigures()],
                 ),
                 maxLines: 1,
@@ -828,28 +917,29 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
           if (!_isRunning) ...[
             Text(
               'Start time: ${_format(_hours, _minutes, _seconds, _hundredths)}',
-              style: TextStyle(fontSize: (width * 0.04).clamp(14.0, 18.0), color: _rallyOrangeBright.withOpacity(0.9)),
+              style: TextStyle(fontSize: (width * 0.04).clamp(14.0, 18.0), color: _rallyTextDark),
             ),
             SizedBox(height: spacing * 0.3),
             Text(
-              'Set time in Settings (gear icon)',
-              style: TextStyle(fontSize: (width * 0.03).clamp(11.0, 14.0), color: Colors.white54),
+              _showStartFromThisTimeButton ? 'Set time in Settings (gear icon)' : 'Time synced from GPS/NTP',
+              style: TextStyle(fontSize: (width * 0.03).clamp(11.0, 14.0), color: _rallyTextMuted),
             ),
             SizedBox(height: spacing),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _startFromSetTime,
-                style: FilledButton.styleFrom(
-                  backgroundColor: _rallyOrange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 2,
+            if (_showStartFromThisTimeButton)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _startFromSetTime,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _rallyOrange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                  ),
+                  child: const Text('Start from this time', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 ),
-                child: const Text('Start from this time', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               ),
-            ),
           ],
           SizedBox(height: spacing),
           // Record button – flag / finish-line style
@@ -859,11 +949,11 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
               shape: const CircleBorder(),
               elevation: 8,
               shadowColor: Colors.black54,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white24, width: 3),
-                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white38, width: 3),
+                  ),
                 child: InkWell(
                   onTap: _onRecordCarPressed,
                   customBorder: const CircleBorder(),
@@ -887,7 +977,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                 ? Center(
                     child: Text(
                       'No entries yet',
-                      style: TextStyle(fontSize: 16, color: Colors.white38),
+                      style: TextStyle(fontSize: 16, color: _rallyTextMuted),
                     ),
                   )
                 : ListView.builder(
@@ -895,14 +985,14 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                     itemBuilder: (context, index) {
                       final e = _entries[index];
                       final num = _entries.length - index;
-                      final entryFontSize = (width * 0.048).clamp(14.0, 22.0);
+                      final entryFontSize = (width * 0.048).clamp(14.0, 22.0) + 2;
                       final iconSize = (width * 0.055).clamp(20.0, 28.0);
                       final isStripe = index.isOdd;
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: (width * 0.008).clamp(2.0, 4.0)),
                         padding: EdgeInsets.symmetric(horizontal: padding * 0.6, vertical: (width * 0.02).clamp(8.0, 14.0)),
                         decoration: BoxDecoration(
-                          color: isStripe ? _rallyNavySurface.withOpacity(0.5) : Colors.transparent,
+                          color: isStripe ? _rallyNavySurface : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border(left: BorderSide(color: _rallyOrange.withOpacity(0.6), width: 3)),
                         ),
@@ -917,7 +1007,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                                     style: TextStyle(
                                       fontSize: entryFontSize,
                                       fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontFeatures: const [FontFeature.tabularFigures()],
                                     ),
                                   ),
@@ -926,7 +1016,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                                     style: TextStyle(
                                       fontSize: entryFontSize,
                                       fontWeight: FontWeight.w700,
-                                      color: _rallyOrangeBright,
+                                      color: Colors.black,
                                       fontFeatures: const [FontFeature.tabularFigures()],
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -935,7 +1025,7 @@ class _RallyMarshalTimerScreenState extends State<RallyMarshalTimerScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.edit_outlined, size: iconSize, color: Colors.white70),
+                              icon: Icon(Icons.edit_outlined, size: iconSize, color: _rallyTextMuted),
                               onPressed: () => _editEntryCarNumber(index),
                               tooltip: 'Edit car number',
                             ),
